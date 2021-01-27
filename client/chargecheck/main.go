@@ -15,20 +15,10 @@ func main() {
 	flag.Parse()
 
 	ticker := time.NewTicker(time.Second * time.Duration(*interval))
-	done := make(chan struct{})
-	go func() {
-		lib.SendCharge(*host, *deviceID)
-		for {
-			select {
-			case <-done:
-				return
-			case <-ticker.C:
-				lib.SendCharge(*host, *deviceID)
-			}
-		}
-	}()
+	lib.SendCharge(*host, *deviceID)
 
-	time.Sleep(100 * time.Second)
-	ticker.Stop()
-	done <- struct{}{}
+	for {
+		<-ticker.C
+		lib.SendCharge(*host, *deviceID)
+	}
 }

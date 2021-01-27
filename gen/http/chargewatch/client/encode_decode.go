@@ -214,7 +214,7 @@ func EncodeUpdateChargeRequest(encoder func(*http.Request) goahttp.Encoder) func
 		if !ok {
 			return goahttp.ErrInvalidType("chargewatch", "updateCharge", "*chargewatch.UpdateChargePayload", v)
 		}
-		body := NewStructChargeChargeChargeRequestBodyRequestBodyForm(p)
+		body := p
 		if err := encoder(req).Encode(&body); err != nil {
 			return goahttp.ErrEncodingError("chargewatch", "updateCharge", err)
 		}
@@ -227,6 +227,7 @@ func EncodeUpdateChargeRequest(encoder func(*http.Request) goahttp.Encoder) func
 // body should be restored after having been read.
 // DecodeUpdateChargeResponse may return the following errors:
 //	- "StatusBadRequest" (type *goa.ServiceError): http.StatusBadRequest
+//	- "StatusInternalServerError" (type *goa.ServiceError): http.StatusInternalServerError
 //	- error: internal error
 func DecodeUpdateChargeResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
@@ -272,6 +273,20 @@ func DecodeUpdateChargeResponse(decoder func(*http.Response) goahttp.Decoder, re
 				return nil, goahttp.ErrValidationError("chargewatch", "updateCharge", err)
 			}
 			return nil, NewUpdateChargeStatusBadRequest(&body)
+		case http.StatusInternalServerError:
+			var (
+				body UpdateChargeStatusInternalServerErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("chargewatch", "updateCharge", err)
+			}
+			err = ValidateUpdateChargeStatusInternalServerErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("chargewatch", "updateCharge", err)
+			}
+			return nil, NewUpdateChargeStatusInternalServerError(&body)
 		default:
 			body, _ := ioutil.ReadAll(resp.Body)
 			return nil, goahttp.ErrInvalidResponse("chargewatch", "updateCharge", resp.StatusCode, string(body))
@@ -379,7 +394,7 @@ func EncodeUpdateDeviceRequest(encoder func(*http.Request) goahttp.Encoder) func
 		if !ok {
 			return goahttp.ErrInvalidType("chargewatch", "updateDevice", "*chargewatch.UpdateDevicePayload", v)
 		}
-		body := NewUpdateDeviceRequestBody(p)
+		body := p
 		if err := encoder(req).Encode(&body); err != nil {
 			return goahttp.ErrEncodingError("chargewatch", "updateDevice", err)
 		}
@@ -449,33 +464,6 @@ func unmarshalChargeResponseBodyToChargewatchCharge(v *ChargeResponseBody) *char
 		Value:     *v.Value,
 		Charging:  *v.Charging,
 		Timestamp: *v.Timestamp,
-	}
-
-	return res
-}
-
-// marshalChargewatchChargeToChargeRequestBodyRequestBody builds a value of
-// type *ChargeRequestBodyRequestBody from a value of type *chargewatch.Charge.
-func marshalChargewatchChargeToChargeRequestBodyRequestBody(v *chargewatch.Charge) *ChargeRequestBodyRequestBody {
-	res := &ChargeRequestBodyRequestBody{
-		Value:     v.Value,
-		Charging:  v.Charging,
-		Timestamp: v.Timestamp,
-	}
-
-	return res
-}
-
-// marshalChargeRequestBodyRequestBodyToChargewatchCharge builds a value of
-// type *chargewatch.Charge from a value of type *ChargeRequestBodyRequestBody.
-func marshalChargeRequestBodyRequestBodyToChargewatchCharge(v *ChargeRequestBodyRequestBody) *chargewatch.Charge {
-	if v == nil {
-		return nil
-	}
-	res := &chargewatch.Charge{
-		Value:     v.Value,
-		Charging:  v.Charging,
-		Timestamp: v.Timestamp,
 	}
 
 	return res

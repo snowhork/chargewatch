@@ -13,13 +13,6 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
-// UpdateDeviceRequestBody is the type of the "chargewatch" service
-// "updateDevice" endpoint HTTP request body.
-type UpdateDeviceRequestBody struct {
-	// value [0,100]
-	ChargeValue *int `form:"chargeValue,omitempty" json:"chargeValue,omitempty" xml:"chargeValue,omitempty"`
-}
-
 // ListDevicesResponseBody is the type of the "chargewatch" service
 // "listDevices" endpoint HTTP response body.
 type ListDevicesResponseBody struct {
@@ -35,7 +28,7 @@ type CreateDeviceResponseBody struct {
 // UpdateChargeResponseBody is the type of the "chargewatch" service
 // "updateCharge" endpoint HTTP response body.
 type UpdateChargeResponseBody struct {
-	Device *DeviceResponseBody `form:"device,omitempty" json:"device,omitempty" xml:"device,omitempty"`
+	Device *DeviceResponseBody `form:"device" json:"device" xml:"device"`
 }
 
 // GetChargeHistoryResponseBody is the type of the "chargewatch" service
@@ -88,6 +81,25 @@ type UpdateChargeStatusBadRequestResponseBody struct {
 	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
+// UpdateChargeStatusInternalServerErrorResponseBody is the type of the
+// "chargewatch" service "updateCharge" endpoint HTTP response body for the
+// "StatusInternalServerError" error.
+type UpdateChargeStatusInternalServerErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
 // DeviceResponseBody is used to define fields on response body types.
 type DeviceResponseBody struct {
 	ID          string              `form:"id" json:"id" xml:"id"`
@@ -115,13 +127,6 @@ type ChargeHistoryResponseBody struct {
 type ChargeLogResponseBody struct {
 	DeviceID string              `form:"deviceID" json:"deviceID" xml:"deviceID"`
 	Charge   *ChargeResponseBody `form:"charge" json:"charge" xml:"charge"`
-}
-
-// ChargeRequestBodyRequestBody is used to define fields on request body types.
-type ChargeRequestBodyRequestBody struct {
-	Value     *int   `form:"value,omitempty" json:"value,omitempty" xml:"value,omitempty"`
-	Charging  *bool  `form:"charging,omitempty" json:"charging,omitempty" xml:"charging,omitempty"`
-	Timestamp *int64 `form:"timestamp,omitempty" json:"timestamp,omitempty" xml:"timestamp,omitempty"`
 }
 
 // NewListDevicesResponseBody builds the HTTP response body from the result of
@@ -206,6 +211,21 @@ func NewUpdateChargeStatusBadRequestResponseBody(res *goa.ServiceError) *UpdateC
 	return body
 }
 
+// NewUpdateChargeStatusInternalServerErrorResponseBody builds the HTTP
+// response body from the result of the "updateCharge" endpoint of the
+// "chargewatch" service.
+func NewUpdateChargeStatusInternalServerErrorResponseBody(res *goa.ServiceError) *UpdateChargeStatusInternalServerErrorResponseBody {
+	body := &UpdateChargeStatusInternalServerErrorResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
 // NewListDevicesPayload builds a chargewatch service listDevices endpoint
 // payload.
 func NewListDevicesPayload(userID string) *chargewatch.ListDevicesPayload {
@@ -241,12 +261,15 @@ func NewCreateDevicePayload(body struct {
 // NewUpdateChargePayload builds a chargewatch service updateCharge endpoint
 // payload.
 func NewUpdateChargePayload(body struct {
-	// charge
-	Charge *ChargeRequestBodyRequestBody `form:"charge" json:"charge" xml:"charge"`
+	ChargeValue *int  `form:"chargeValue" json:"chargeValue" xml:"chargeValue"`
+	Charging    *bool `form:"charging" json:"charging" xml:"charging"`
 }, deviceID string) *chargewatch.UpdateChargePayload {
 	v := &chargewatch.UpdateChargePayload{}
-	if body.Charge != nil {
-		v.Charge = unmarshalChargeRequestBodyRequestBodyToChargewatchCharge(body.Charge)
+	if body.ChargeValue != nil {
+		v.ChargeValue = *body.ChargeValue
+	}
+	if body.Charging != nil {
+		v.Charging = *body.Charging
 	}
 	v.DeviceID = deviceID
 
@@ -264,46 +287,16 @@ func NewGetChargeHistoryPayload(deviceID string) *chargewatch.GetChargeHistoryPa
 
 // NewUpdateDevicePayload builds a chargewatch service updateDevice endpoint
 // payload.
-func NewUpdateDevicePayload(body *UpdateDeviceRequestBody, userID string, deviceID string) *chargewatch.UpdateDevicePayload {
-	v := &chargewatch.UpdateDevicePayload{
-		ChargeValue: *body.ChargeValue,
+func NewUpdateDevicePayload(body struct {
+	// value [0,100]
+	ChargeValue *int `form:"chargeValue" json:"chargeValue" xml:"chargeValue"`
+}, userID string, deviceID string) *chargewatch.UpdateDevicePayload {
+	v := &chargewatch.UpdateDevicePayload{}
+	if body.ChargeValue != nil {
+		v.ChargeValue = *body.ChargeValue
 	}
 	v.UserID = userID
 	v.DeviceID = deviceID
 
 	return v
-}
-
-// ValidateUpdateDeviceRequestBody runs the validations defined on
-// UpdateDeviceRequestBody
-func ValidateUpdateDeviceRequestBody(body *UpdateDeviceRequestBody) (err error) {
-	if body.ChargeValue == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("chargeValue", "body"))
-	}
-	if body.ChargeValue != nil {
-		if *body.ChargeValue < 0 {
-			err = goa.MergeErrors(err, goa.InvalidRangeError("body.chargeValue", *body.ChargeValue, 0, true))
-		}
-	}
-	if body.ChargeValue != nil {
-		if *body.ChargeValue > 100 {
-			err = goa.MergeErrors(err, goa.InvalidRangeError("body.chargeValue", *body.ChargeValue, 100, false))
-		}
-	}
-	return
-}
-
-// ValidateChargeRequestBodyRequestBody runs the validations defined on
-// ChargeRequestBodyRequestBody
-func ValidateChargeRequestBodyRequestBody(body *ChargeRequestBodyRequestBody) (err error) {
-	if body.Value == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("value", "body"))
-	}
-	if body.Charging == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("charging", "body"))
-	}
-	if body.Timestamp == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("timestamp", "body"))
-	}
-	return
 }

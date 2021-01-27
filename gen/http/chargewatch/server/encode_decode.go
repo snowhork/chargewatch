@@ -136,8 +136,8 @@ func DecodeUpdateChargeRequest(mux goahttp.Muxer, decoder func(*http.Request) go
 	return func(r *http.Request) (interface{}, error) {
 		var (
 			body struct {
-				// charge
-				Charge *ChargeRequestBodyRequestBody `form:"charge" json:"charge" xml:"charge"`
+				ChargeValue *int  `form:"chargeValue" json:"chargeValue" xml:"chargeValue"`
+				Charging    *bool `form:"charging" json:"charging" xml:"charging"`
 			}
 			err error
 		)
@@ -182,6 +182,18 @@ func EncodeUpdateChargeError(encoder func(context.Context, http.ResponseWriter) 
 			}
 			w.Header().Set("goa-error", "StatusBadRequest")
 			w.WriteHeader(http.StatusBadRequest)
+			return enc.Encode(body)
+		case "StatusInternalServerError":
+			res := v.(*goa.ServiceError)
+			enc := encoder(ctx, w)
+			var body interface{}
+			if formatter != nil {
+				body = formatter(res)
+			} else {
+				body = NewUpdateChargeStatusInternalServerErrorResponseBody(res)
+			}
+			w.Header().Set("goa-error", "StatusInternalServerError")
+			w.WriteHeader(http.StatusInternalServerError)
 			return enc.Encode(body)
 		default:
 			return encodeError(ctx, w, v)
@@ -234,8 +246,11 @@ func EncodeUpdateDeviceResponse(encoder func(context.Context, http.ResponseWrite
 func DecodeUpdateDeviceRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
 	return func(r *http.Request) (interface{}, error) {
 		var (
-			body UpdateDeviceRequestBody
-			err  error
+			body struct {
+				// value [0,100]
+				ChargeValue *int `form:"chargeValue" json:"chargeValue" xml:"chargeValue"`
+			}
+			err error
 		)
 		err = decoder(r).Decode(&body)
 		if err != nil {
@@ -244,7 +259,16 @@ func DecodeUpdateDeviceRequest(mux goahttp.Muxer, decoder func(*http.Request) go
 			}
 			return nil, goa.DecodePayloadError(err.Error())
 		}
-		err = ValidateUpdateDeviceRequestBody(&body)
+		if body.ChargeValue != nil {
+			if *body.ChargeValue < 0 {
+				err = goa.MergeErrors(err, goa.InvalidRangeError("body.chargeValue", *body.ChargeValue, 0, true))
+			}
+		}
+		if body.ChargeValue != nil {
+			if *body.ChargeValue > 100 {
+				err = goa.MergeErrors(err, goa.InvalidRangeError("body.chargeValue", *body.ChargeValue, 100, false))
+			}
+		}
 		if err != nil {
 			return nil, err
 		}
@@ -257,7 +281,7 @@ func DecodeUpdateDeviceRequest(mux goahttp.Muxer, decoder func(*http.Request) go
 		)
 		userID = params["userID"]
 		deviceID = params["deviceID"]
-		payload := NewUpdateDevicePayload(&body, userID, deviceID)
+		payload := NewUpdateDevicePayload(body, userID, deviceID)
 
 		return payload, nil
 	}
@@ -287,21 +311,6 @@ func marshalChargewatchChargeToChargeResponseBody(v *chargewatch.Charge) *Charge
 		Value:     v.Value,
 		Charging:  v.Charging,
 		Timestamp: v.Timestamp,
-	}
-
-	return res
-}
-
-// unmarshalChargeRequestBodyRequestBodyToChargewatchCharge builds a value of
-// type *chargewatch.Charge from a value of type *ChargeRequestBodyRequestBody.
-func unmarshalChargeRequestBodyRequestBodyToChargewatchCharge(v *ChargeRequestBodyRequestBody) *chargewatch.Charge {
-	if v == nil {
-		return nil
-	}
-	res := &chargewatch.Charge{
-		Value:     *v.Value,
-		Charging:  *v.Charging,
-		Timestamp: *v.Timestamp,
 	}
 
 	return res

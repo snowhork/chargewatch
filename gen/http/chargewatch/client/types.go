@@ -13,13 +13,6 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
-// UpdateDeviceRequestBody is the type of the "chargewatch" service
-// "updateDevice" endpoint HTTP request body.
-type UpdateDeviceRequestBody struct {
-	// value [0,100]
-	ChargeValue int `form:"chargeValue" json:"chargeValue" xml:"chargeValue"`
-}
-
 // ListDevicesResponseBody is the type of the "chargewatch" service
 // "listDevices" endpoint HTTP response body.
 type ListDevicesResponseBody struct {
@@ -88,6 +81,25 @@ type UpdateChargeStatusBadRequestResponseBody struct {
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
+// UpdateChargeStatusInternalServerErrorResponseBody is the type of the
+// "chargewatch" service "updateCharge" endpoint HTTP response body for the
+// "StatusInternalServerError" error.
+type UpdateChargeStatusInternalServerErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
 // DeviceResponseBody is used to define fields on response body types.
 type DeviceResponseBody struct {
 	ID          *string             `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
@@ -105,13 +117,6 @@ type ChargeResponseBody struct {
 	Timestamp *int64 `form:"timestamp,omitempty" json:"timestamp,omitempty" xml:"timestamp,omitempty"`
 }
 
-// ChargeRequestBodyRequestBody is used to define fields on request body types.
-type ChargeRequestBodyRequestBody struct {
-	Value     int   `form:"value" json:"value" xml:"value"`
-	Charging  bool  `form:"charging" json:"charging" xml:"charging"`
-	Timestamp int64 `form:"timestamp" json:"timestamp" xml:"timestamp"`
-}
-
 // ChargeHistoryResponseBody is used to define fields on response body types.
 type ChargeHistoryResponseBody struct {
 	DeviceID *string                  `form:"deviceID,omitempty" json:"deviceID,omitempty" xml:"deviceID,omitempty"`
@@ -122,15 +127,6 @@ type ChargeHistoryResponseBody struct {
 type ChargeLogResponseBody struct {
 	DeviceID *string             `form:"deviceID,omitempty" json:"deviceID,omitempty" xml:"deviceID,omitempty"`
 	Charge   *ChargeResponseBody `form:"charge,omitempty" json:"charge,omitempty" xml:"charge,omitempty"`
-}
-
-// NewUpdateDeviceRequestBody builds the HTTP request body from the payload of
-// the "updateDevice" endpoint of the "chargewatch" service.
-func NewUpdateDeviceRequestBody(p *chargewatch.UpdateDevicePayload) *UpdateDeviceRequestBody {
-	body := &UpdateDeviceRequestBody{
-		ChargeValue: p.ChargeValue,
-	}
-	return body
 }
 
 // NewListDevicesResultOK builds a "chargewatch" service "listDevices" endpoint
@@ -173,9 +169,7 @@ func NewCreateDeviceStatusInternalServerError(body *CreateDeviceStatusInternalSe
 // endpoint result from a HTTP "OK" response.
 func NewUpdateChargeResultOK(body *UpdateChargeResponseBody) *chargewatch.UpdateChargeResult {
 	v := &chargewatch.UpdateChargeResult{}
-	if body.Device != nil {
-		v.Device = unmarshalDeviceResponseBodyToChargewatchDevice(body.Device)
-	}
+	v.Device = unmarshalDeviceResponseBodyToChargewatchDevice(body.Device)
 
 	return v
 }
@@ -183,6 +177,21 @@ func NewUpdateChargeResultOK(body *UpdateChargeResponseBody) *chargewatch.Update
 // NewUpdateChargeStatusBadRequest builds a chargewatch service updateCharge
 // endpoint StatusBadRequest error.
 func NewUpdateChargeStatusBadRequest(body *UpdateChargeStatusBadRequestResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewUpdateChargeStatusInternalServerError builds a chargewatch service
+// updateCharge endpoint StatusInternalServerError error.
+func NewUpdateChargeStatusInternalServerError(body *UpdateChargeStatusInternalServerErrorResponseBody) *goa.ServiceError {
 	v := &goa.ServiceError{
 		Name:      *body.Name,
 		ID:        *body.ID,
@@ -246,6 +255,9 @@ func ValidateCreateDeviceResponseBody(body *CreateDeviceResponseBody) (err error
 // ValidateUpdateChargeResponseBody runs the validations defined on
 // UpdateChargeResponseBody
 func ValidateUpdateChargeResponseBody(body *UpdateChargeResponseBody) (err error) {
+	if body.Device == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("device", "body"))
+	}
 	if body.Device != nil {
 		if err2 := ValidateDeviceResponseBody(body.Device); err2 != nil {
 			err = goa.MergeErrors(err, err2)
@@ -309,6 +321,30 @@ func ValidateCreateDeviceStatusInternalServerErrorResponseBody(body *CreateDevic
 // ValidateUpdateChargeStatusBadRequestResponseBody runs the validations
 // defined on updateCharge_StatusBadRequest_response_body
 func ValidateUpdateChargeStatusBadRequestResponseBody(body *UpdateChargeStatusBadRequestResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateUpdateChargeStatusInternalServerErrorResponseBody runs the
+// validations defined on updateCharge_StatusInternalServerError_response_body
+func ValidateUpdateChargeStatusInternalServerErrorResponseBody(body *UpdateChargeStatusInternalServerErrorResponseBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}

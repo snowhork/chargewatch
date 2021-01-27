@@ -32,6 +32,7 @@ var _ = Service("chargewatch", func() {
 			Attribute("description", String, "description", func() {
 				Default("")
 			})
+
 			Required("userID", "name")
 		})
 		Result(func() {
@@ -54,24 +55,27 @@ var _ = Service("chargewatch", func() {
 	Method("updateCharge", func() {
 		Payload(func() {
 			Attribute("deviceID", String, "deviceID")
-			Attribute("charge", Charge, "charge")
+			Attribute("chargeValue", Int)
+			Attribute("charging", Boolean)
 
-			Required("deviceID", "charge")
+			Required("deviceID", "chargeValue", "charging")
 		})
 		Result(func() {
 			Attribute("device", Device)
+			Required("device")
 		})
 		Error("StatusInternalServerError")
 		Error("StatusBadRequest")
 		HTTP(func() {
 			POST("/devices/{deviceID}/charge")
 			Body(func() {
-				Attribute("charge", Charge)
-				Required("charge")
+				Attribute("chargeValue")
+				Attribute("charging")
 			})
 
 			Response(StatusOK)
 			Response("StatusBadRequest", StatusBadRequest)
+			Response("StatusInternalServerError", StatusInternalServerError)
 		})
 	})
 
@@ -106,6 +110,9 @@ var _ = Service("chargewatch", func() {
 		})
 		HTTP(func() {
 			POST("/user/{userID}/devices/{deviceID}")
+			Body(func() {
+				Attribute("chargeValue")
+			})
 			Response(StatusOK)
 		})
 	})

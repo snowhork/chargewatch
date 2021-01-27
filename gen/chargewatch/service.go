@@ -71,9 +71,9 @@ type CreateDeviceResult struct {
 // updateCharge method.
 type UpdateChargePayload struct {
 	// deviceID
-	DeviceID string
-	// charge
-	Charge *Charge
+	DeviceID    string
+	ChargeValue int
+	Charging    bool
 }
 
 // UpdateChargeResult is the result type of the chargewatch service

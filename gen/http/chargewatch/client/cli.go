@@ -11,8 +11,6 @@ import (
 	chargewatch "chargewatch/gen/chargewatch"
 	"encoding/json"
 	"fmt"
-
-	goa "goa.design/goa/v3/pkg"
 )
 
 // BuildListDevicesPayload builds the payload for the chargewatch listDevices
@@ -70,13 +68,13 @@ func BuildCreateDevicePayload(chargewatchCreateDeviceBody string, chargewatchCre
 func BuildUpdateChargePayload(chargewatchUpdateChargeBody string, chargewatchUpdateChargeDeviceID string) (*chargewatch.UpdateChargePayload, error) {
 	var err error
 	var body struct {
-		// charge
-		Charge *ChargeRequestBodyRequestBody `form:"charge" json:"charge" xml:"charge"`
+		ChargeValue *int  `form:"chargeValue" json:"chargeValue" xml:"chargeValue"`
+		Charging    *bool `form:"charging" json:"charging" xml:"charging"`
 	}
 	{
 		err = json.Unmarshal([]byte(chargewatchUpdateChargeBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"charge\": {\n         \"charging\": true,\n         \"timestamp\": 6534498977651929528,\n         \"value\": 4532680824102535020\n      }\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"chargeValue\": 3361936368716358981,\n      \"charging\": true\n   }'")
 		}
 	}
 	var deviceID string
@@ -84,8 +82,11 @@ func BuildUpdateChargePayload(chargewatchUpdateChargeBody string, chargewatchUpd
 		deviceID = chargewatchUpdateChargeDeviceID
 	}
 	v := &chargewatch.UpdateChargePayload{}
-	if body.Charge != nil {
-		v.Charge = marshalChargeRequestBodyRequestBodyToChargewatchCharge(body.Charge)
+	if body.ChargeValue != nil {
+		v.ChargeValue = *body.ChargeValue
+	}
+	if body.Charging != nil {
+		v.Charging = *body.Charging
 	}
 	v.DeviceID = deviceID
 
@@ -109,20 +110,14 @@ func BuildGetChargeHistoryPayload(chargewatchGetChargeHistoryDeviceID string) (*
 // endpoint from CLI flags.
 func BuildUpdateDevicePayload(chargewatchUpdateDeviceBody string, chargewatchUpdateDeviceUserID string, chargewatchUpdateDeviceDeviceID string) (*chargewatch.UpdateDevicePayload, error) {
 	var err error
-	var body UpdateDeviceRequestBody
+	var body struct {
+		// value [0,100]
+		ChargeValue *int `form:"chargeValue" json:"chargeValue" xml:"chargeValue"`
+	}
 	{
 		err = json.Unmarshal([]byte(chargewatchUpdateDeviceBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"chargeValue\": 93\n   }'")
-		}
-		if body.ChargeValue < 0 {
-			err = goa.MergeErrors(err, goa.InvalidRangeError("body.chargeValue", body.ChargeValue, 0, true))
-		}
-		if body.ChargeValue > 100 {
-			err = goa.MergeErrors(err, goa.InvalidRangeError("body.chargeValue", body.ChargeValue, 100, false))
-		}
-		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"chargeValue\": 23\n   }'")
 		}
 	}
 	var userID string
@@ -133,8 +128,9 @@ func BuildUpdateDevicePayload(chargewatchUpdateDeviceBody string, chargewatchUpd
 	{
 		deviceID = chargewatchUpdateDeviceDeviceID
 	}
-	v := &chargewatch.UpdateDevicePayload{
-		ChargeValue: body.ChargeValue,
+	v := &chargewatch.UpdateDevicePayload{}
+	if body.ChargeValue != nil {
+		v.ChargeValue = *body.ChargeValue
 	}
 	v.UserID = userID
 	v.DeviceID = deviceID

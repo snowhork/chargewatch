@@ -223,12 +223,9 @@ UpdateCharge implements updateCharge.
 
 Example:
     `+os.Args[0]+` chargewatch update-charge --body '{
-      "charge": {
-         "charging": true,
-         "timestamp": 6534498977651929528,
-         "value": 4532680824102535020
-      }
-   }' --device-id "Sapiente vitae voluptas aperiam provident voluptatem vel."
+      "chargeValue": 3361936368716358981,
+      "charging": true
+   }' --device-id "Vitae voluptas aperiam provident voluptatem vel laboriosam."
 `, os.Args[0])
 }
 
@@ -239,7 +236,7 @@ GetChargeHistory implements getChargeHistory.
     -device-id STRING: deviceID
 
 Example:
-    `+os.Args[0]+` chargewatch get-charge-history --device-id "Esse impedit porro voluptas."
+    `+os.Args[0]+` chargewatch get-charge-history --device-id "Delectus alias velit ut."
 `, os.Args[0])
 }
 
@@ -253,7 +250,7 @@ UpdateDevice implements updateDevice.
 
 Example:
     `+os.Args[0]+` chargewatch update-device --body '{
-      "chargeValue": 93
-   }' --user-id "Tempora labore." --device-id "Rerum expedita et velit ullam."
+      "chargeValue": 23
+   }' --user-id "Et velit ullam." --device-id "Officiis aut et ut eos."
 `, os.Args[0])
 }

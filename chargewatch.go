@@ -93,7 +93,7 @@ func (s *chargewatchsrvc) UpdateCharge(ctx context.Context, p *api.UpdateChargeP
 }
 
 func updateChargePayload2Charge(p *api.UpdateChargePayload) (vals.Charge, error) {
-	return vals.NewCharge(p.Charge.Value, p.Charge.Charging)
+	return vals.NewCharge(p.ChargeValue, p.Charging)
 }
 
 func genListDevicesResult(ds []*entity.Device) *api.ListDevicesResult {
