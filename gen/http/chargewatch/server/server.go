@@ -11,9 +11,11 @@ import (
 	chargewatch "chargewatch/gen/chargewatch"
 	"context"
 	"net/http"
+	"regexp"
 
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
+	"goa.design/plugins/v3/cors"
 )
 
 // Server lists the chargewatch service endpoint HTTP handlers.
@@ -24,6 +26,7 @@ type Server struct {
 	UpdateCharge     http.Handler
 	GetChargeHistory http.Handler
 	UpdateDevice     http.Handler
+	CORS             http.Handler
 }
 
 // ErrorNamer is an interface implemented by generated error structs that
@@ -64,12 +67,17 @@ func New(
 			{"UpdateCharge", "POST", "/devices/{deviceID}/charge"},
 			{"GetChargeHistory", "GET", "/devices/{deviceID}/chargeHistory"},
 			{"UpdateDevice", "POST", "/user/{userID}/devices/{deviceID}"},
+			{"CORS", "OPTIONS", "/user/{userID}/devices"},
+			{"CORS", "OPTIONS", "/devices/{deviceID}/charge"},
+			{"CORS", "OPTIONS", "/devices/{deviceID}/chargeHistory"},
+			{"CORS", "OPTIONS", "/user/{userID}/devices/{deviceID}"},
 		},
 		ListDevices:      NewListDevicesHandler(e.ListDevices, mux, decoder, encoder, errhandler, formatter),
 		CreateDevice:     NewCreateDeviceHandler(e.CreateDevice, mux, decoder, encoder, errhandler, formatter),
 		UpdateCharge:     NewUpdateChargeHandler(e.UpdateCharge, mux, decoder, encoder, errhandler, formatter),
 		GetChargeHistory: NewGetChargeHistoryHandler(e.GetChargeHistory, mux, decoder, encoder, errhandler, formatter),
 		UpdateDevice:     NewUpdateDeviceHandler(e.UpdateDevice, mux, decoder, encoder, errhandler, formatter),
+		CORS:             NewCORSHandler(),
 	}
 }
 
@@ -83,6 +91,7 @@ func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.UpdateCharge = m(s.UpdateCharge)
 	s.GetChargeHistory = m(s.GetChargeHistory)
 	s.UpdateDevice = m(s.UpdateDevice)
+	s.CORS = m(s.CORS)
 }
 
 // Mount configures the mux to serve the chargewatch endpoints.
@@ -92,12 +101,13 @@ func Mount(mux goahttp.Muxer, h *Server) {
 	MountUpdateChargeHandler(mux, h.UpdateCharge)
 	MountGetChargeHistoryHandler(mux, h.GetChargeHistory)
 	MountUpdateDeviceHandler(mux, h.UpdateDevice)
+	MountCORSHandler(mux, h.CORS)
 }
 
 // MountListDevicesHandler configures the mux to serve the "chargewatch"
 // service "listDevices" endpoint.
 func MountListDevicesHandler(mux goahttp.Muxer, h http.Handler) {
-	f, ok := h.(http.HandlerFunc)
+	f, ok := handleChargewatchOrigin(h).(http.HandlerFunc)
 	if !ok {
 		f = func(w http.ResponseWriter, r *http.Request) {
 			h.ServeHTTP(w, r)
@@ -148,7 +158,7 @@ func NewListDevicesHandler(
 // MountCreateDeviceHandler configures the mux to serve the "chargewatch"
 // service "createDevice" endpoint.
 func MountCreateDeviceHandler(mux goahttp.Muxer, h http.Handler) {
-	f, ok := h.(http.HandlerFunc)
+	f, ok := handleChargewatchOrigin(h).(http.HandlerFunc)
 	if !ok {
 		f = func(w http.ResponseWriter, r *http.Request) {
 			h.ServeHTTP(w, r)
@@ -199,7 +209,7 @@ func NewCreateDeviceHandler(
 // MountUpdateChargeHandler configures the mux to serve the "chargewatch"
 // service "updateCharge" endpoint.
 func MountUpdateChargeHandler(mux goahttp.Muxer, h http.Handler) {
-	f, ok := h.(http.HandlerFunc)
+	f, ok := handleChargewatchOrigin(h).(http.HandlerFunc)
 	if !ok {
 		f = func(w http.ResponseWriter, r *http.Request) {
 			h.ServeHTTP(w, r)
@@ -250,7 +260,7 @@ func NewUpdateChargeHandler(
 // MountGetChargeHistoryHandler configures the mux to serve the "chargewatch"
 // service "getChargeHistory" endpoint.
 func MountGetChargeHistoryHandler(mux goahttp.Muxer, h http.Handler) {
-	f, ok := h.(http.HandlerFunc)
+	f, ok := handleChargewatchOrigin(h).(http.HandlerFunc)
 	if !ok {
 		f = func(w http.ResponseWriter, r *http.Request) {
 			h.ServeHTTP(w, r)
@@ -301,7 +311,7 @@ func NewGetChargeHistoryHandler(
 // MountUpdateDeviceHandler configures the mux to serve the "chargewatch"
 // service "updateDevice" endpoint.
 func MountUpdateDeviceHandler(mux goahttp.Muxer, h http.Handler) {
-	f, ok := h.(http.HandlerFunc)
+	f, ok := handleChargewatchOrigin(h).(http.HandlerFunc)
 	if !ok {
 		f = func(w http.ResponseWriter, r *http.Request) {
 			h.ServeHTTP(w, r)
@@ -346,5 +356,59 @@ func NewUpdateDeviceHandler(
 		if err := encodeResponse(ctx, w, res); err != nil {
 			errhandler(ctx, w, err)
 		}
+	})
+}
+
+// MountCORSHandler configures the mux to serve the CORS endpoints for the
+// service chargewatch.
+func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
+	h = handleChargewatchOrigin(h)
+	f, ok := h.(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("OPTIONS", "/user/{userID}/devices", f)
+	mux.Handle("OPTIONS", "/devices/{deviceID}/charge", f)
+	mux.Handle("OPTIONS", "/devices/{deviceID}/chargeHistory", f)
+	mux.Handle("OPTIONS", "/user/{userID}/devices/{deviceID}", f)
+}
+
+// NewCORSHandler creates a HTTP handler which returns a simple 200 response.
+func NewCORSHandler() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(200)
+	})
+}
+
+// handleChargewatchOrigin applies the CORS response headers corresponding to
+// the origin for the service chargewatch.
+func handleChargewatchOrigin(h http.Handler) http.Handler {
+	spec0 := regexp.MustCompile(".*localhost.*")
+	origHndlr := h.(http.HandlerFunc)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		origin := r.Header.Get("Origin")
+		if origin == "" {
+			// Not a CORS request
+			origHndlr(w, r)
+			return
+		}
+		if cors.MatchOriginRegexp(origin, spec0) {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+			w.Header().Set("Vary", "Origin")
+			w.Header().Set("Access-Control-Expose-Headers", "X-Time, X-Api-Version")
+			w.Header().Set("Access-Control-Max-Age", "100")
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
+			if acrm := r.Header.Get("Access-Control-Request-Method"); acrm != "" {
+				// We are handling a preflight request
+				w.Header().Set("Access-Control-Allow-Methods", "GET, POST")
+				w.Header().Set("Access-Control-Allow-Headers", "X-Shared-Secret")
+			}
+			origHndlr(w, r)
+			return
+		}
+		origHndlr(w, r)
+		return
 	})
 }

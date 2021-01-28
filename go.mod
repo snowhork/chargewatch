@@ -10,6 +10,7 @@ require (
 	github.com/guregu/dynamo v1.10.2
 	github.com/stretchr/testify v1.6.1
 	goa.design/goa/v3 v3.2.6
+	goa.design/plugins/v3 v3.2.6
 	golang.org/x/net v0.0.0-20210119194325-5f4716e94777 // indirect
 	golang.org/x/text v0.3.5 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
