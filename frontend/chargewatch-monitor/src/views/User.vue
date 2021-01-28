@@ -41,12 +41,11 @@
       const resp = await GetDevices(this.userID)
       this.devices = resp.devices
 
-      const that = this;
       setInterval(
         async function() {
-          const resp = await GetDevices(that.userID)
-          that.devices = resp.devices
-        },
+          const resp = await GetDevices(this.userID)
+          this.devices = resp.devices
+        }.bind(this),
         10000
       );
 
