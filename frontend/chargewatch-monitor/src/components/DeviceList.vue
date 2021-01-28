@@ -3,24 +3,19 @@
     <p>
       Hello, {{ userID }}
     </p>
-
-    <ul>
-      <li v-for="device in devices" :key="device.id">
-        {{device.name}}
-        <span style="margin-left: 4px"></span>
-        {{device.charge.value}}
-        <span style="margin-left: 4px"></span>
-        {{device.charge.timestamp}}
-      </li>
-    </ul>
+    <tr v-for="device in devices" :key="device.id">
+      <DeviceListRow :device="device"></DeviceListRow>
+    </tr>
   </div>
 </template>
 
 <script lang="ts">
   import {Component, Prop, Vue} from 'vue-property-decorator';
   import {Device} from "@/vals/vals";
-
-  @Component
+  import DeviceListRow from "@/components/DeviceListRow.vue";
+  @Component({
+    components: {DeviceListRow}
+  })
   export default class DeviceList extends Vue {
     @Prop()
     public userID!: string

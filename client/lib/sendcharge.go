@@ -52,40 +52,47 @@ func SendCharge(host, deviceID string) {
 	value := 100*remain/(full+1) + 1
 	charging := string(rawCharging) == "Yes"
 
-	post(host, deviceID, value, charging)
+	if err := post(host, deviceID, value, charging); err != nil {
+		log.Println(err)
+	}
 }
 
-func post(host, deviceID string, value int, charging bool) {
+func post(host, deviceID string, value int, charging bool) error {
 	payload := RequestPayload{ChargeValue: value, Charging: charging}
 	raw, err := json.Marshal(payload)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
+	path := fmt.Sprintf("%s/devices/%s/charge", host, deviceID)
+
+	println(string(path))
 	println(string(raw))
 
 	req, err := http.NewRequest(
 		"POST",
-		fmt.Sprintf("%s/devices/%s/charge", host, deviceID),
+		path,
 		bytes.NewBuffer(raw),
 	)
 
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	res, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	defer resp.Body.Close()
 
 	println(string(res))
+
+	return nil
 }

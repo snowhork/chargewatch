@@ -10,7 +10,7 @@ func main() {
 	var (
 		host     = flag.String("host", "http://localhost:8088", "Server host")
 		deviceID = flag.String("deviceID", "", "Device ID")
-		interval = flag.Int("interval", 600, "interval (second)")
+		interval = flag.Int("interval", 300, "interval (second)")
 	)
 	flag.Parse()
 

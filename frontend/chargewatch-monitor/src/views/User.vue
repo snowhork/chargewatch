@@ -1,7 +1,5 @@
 <template>
   <div>
-    UserPage
-    <p>{{userID}}</p>
     <DeviceList :userID="userID" :devices="devices">
     </DeviceList>
   </div>
@@ -40,9 +38,18 @@
 
     async fetchData(route: Route) {
       this.userID = route.params.userID
-
       const resp = await GetDevices(this.userID)
       this.devices = resp.devices
+
+      const that = this;
+      setInterval(
+        async function() {
+          const resp = await GetDevices(that.userID)
+          that.devices = resp.devices
+        },
+        10000
+      );
+
     }
   }
 </script>
