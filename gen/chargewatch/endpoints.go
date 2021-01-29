@@ -15,6 +15,7 @@ import (
 
 // Endpoints wraps the "chargewatch" service endpoints.
 type Endpoints struct {
+	Healthcheck      goa.Endpoint
 	ListDevices      goa.Endpoint
 	CreateDevice     goa.Endpoint
 	UpdateCharge     goa.Endpoint
@@ -25,6 +26,7 @@ type Endpoints struct {
 // NewEndpoints wraps the methods of the "chargewatch" service with endpoints.
 func NewEndpoints(s Service) *Endpoints {
 	return &Endpoints{
+		Healthcheck:      NewHealthcheckEndpoint(s),
 		ListDevices:      NewListDevicesEndpoint(s),
 		CreateDevice:     NewCreateDeviceEndpoint(s),
 		UpdateCharge:     NewUpdateChargeEndpoint(s),
@@ -35,11 +37,20 @@ func NewEndpoints(s Service) *Endpoints {
 
 // Use applies the given middleware to all the "chargewatch" service endpoints.
 func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
+	e.Healthcheck = m(e.Healthcheck)
 	e.ListDevices = m(e.ListDevices)
 	e.CreateDevice = m(e.CreateDevice)
 	e.UpdateCharge = m(e.UpdateCharge)
 	e.GetChargeHistory = m(e.GetChargeHistory)
 	e.UpdateDevice = m(e.UpdateDevice)
+}
+
+// NewHealthcheckEndpoint returns an endpoint function that calls the method
+// "healthcheck" of service "chargewatch".
+func NewHealthcheckEndpoint(s Service) goa.Endpoint {
+	return func(ctx context.Context, req interface{}) (interface{}, error) {
+		return s.Healthcheck(ctx)
+	}
 }
 
 // NewListDevicesEndpoint returns an endpoint function that calls the method

@@ -21,6 +21,14 @@ var _ = API("charge watch", func() {
 })
 
 var _ = Service("chargewatch", func() {
+	Method("healthcheck", func() {
+		Result(String)
+		HTTP(func() {
+			GET("/healthcheck")
+			Response(StatusOK)
+		})
+	})
+
 	Method("listDevices", func() {
 		Payload(func() {
 			Attribute("userID", String, "userID")

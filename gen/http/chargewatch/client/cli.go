@@ -39,7 +39,7 @@ func BuildCreateDevicePayload(chargewatchCreateDeviceBody string, chargewatchCre
 	{
 		err = json.Unmarshal([]byte(chargewatchCreateDeviceBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"description\": \"Id omnis.\",\n      \"name\": \"Asperiores vel.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"description\": \"Occaecati beatae optio sapiente vitae.\",\n      \"name\": \"Et nesciunt aperiam voluptas.\"\n   }'")
 		}
 	}
 	var userID string
@@ -74,7 +74,7 @@ func BuildUpdateChargePayload(chargewatchUpdateChargeBody string, chargewatchUpd
 	{
 		err = json.Unmarshal([]byte(chargewatchUpdateChargeBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"chargeValue\": 3361936368716358981,\n      \"charging\": true\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"chargeValue\": 1204534250065173899,\n      \"charging\": false\n   }'")
 		}
 	}
 	var deviceID string
@@ -117,7 +117,7 @@ func BuildUpdateDevicePayload(chargewatchUpdateDeviceBody string, chargewatchUpd
 	{
 		err = json.Unmarshal([]byte(chargewatchUpdateDeviceBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"chargeValue\": 23\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"chargeValue\": 54\n   }'")
 		}
 	}
 	var userID string

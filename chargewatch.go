@@ -16,6 +16,10 @@ type chargewatchsrvc struct {
 	repo   *RepositoryAgg
 }
 
+func (s *chargewatchsrvc) Healthcheck(context.Context) (res string, err error) {
+	return "ok", nil
+}
+
 func device2Payload(d *entity.Device) *api.Device {
 	return &api.Device{
 		ID:          string(d.ID),

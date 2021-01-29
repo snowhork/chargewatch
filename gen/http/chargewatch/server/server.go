@@ -21,6 +21,7 @@ import (
 // Server lists the chargewatch service endpoint HTTP handlers.
 type Server struct {
 	Mounts           []*MountPoint
+	Healthcheck      http.Handler
 	ListDevices      http.Handler
 	CreateDevice     http.Handler
 	UpdateCharge     http.Handler
@@ -62,16 +63,19 @@ func New(
 ) *Server {
 	return &Server{
 		Mounts: []*MountPoint{
+			{"Healthcheck", "GET", "/healthcheck"},
 			{"ListDevices", "GET", "/user/{userID}/devices"},
 			{"CreateDevice", "POST", "/user/{userID}/devices"},
 			{"UpdateCharge", "POST", "/devices/{deviceID}/charge"},
 			{"GetChargeHistory", "GET", "/devices/{deviceID}/chargeHistory"},
 			{"UpdateDevice", "POST", "/user/{userID}/devices/{deviceID}"},
+			{"CORS", "OPTIONS", "/healthcheck"},
 			{"CORS", "OPTIONS", "/user/{userID}/devices"},
 			{"CORS", "OPTIONS", "/devices/{deviceID}/charge"},
 			{"CORS", "OPTIONS", "/devices/{deviceID}/chargeHistory"},
 			{"CORS", "OPTIONS", "/user/{userID}/devices/{deviceID}"},
 		},
+		Healthcheck:      NewHealthcheckHandler(e.Healthcheck, mux, decoder, encoder, errhandler, formatter),
 		ListDevices:      NewListDevicesHandler(e.ListDevices, mux, decoder, encoder, errhandler, formatter),
 		CreateDevice:     NewCreateDeviceHandler(e.CreateDevice, mux, decoder, encoder, errhandler, formatter),
 		UpdateCharge:     NewUpdateChargeHandler(e.UpdateCharge, mux, decoder, encoder, errhandler, formatter),
@@ -86,6 +90,7 @@ func (s *Server) Service() string { return "chargewatch" }
 
 // Use wraps the server handlers with the given middleware.
 func (s *Server) Use(m func(http.Handler) http.Handler) {
+	s.Healthcheck = m(s.Healthcheck)
 	s.ListDevices = m(s.ListDevices)
 	s.CreateDevice = m(s.CreateDevice)
 	s.UpdateCharge = m(s.UpdateCharge)
@@ -96,12 +101,57 @@ func (s *Server) Use(m func(http.Handler) http.Handler) {
 
 // Mount configures the mux to serve the chargewatch endpoints.
 func Mount(mux goahttp.Muxer, h *Server) {
+	MountHealthcheckHandler(mux, h.Healthcheck)
 	MountListDevicesHandler(mux, h.ListDevices)
 	MountCreateDeviceHandler(mux, h.CreateDevice)
 	MountUpdateChargeHandler(mux, h.UpdateCharge)
 	MountGetChargeHistoryHandler(mux, h.GetChargeHistory)
 	MountUpdateDeviceHandler(mux, h.UpdateDevice)
 	MountCORSHandler(mux, h.CORS)
+}
+
+// MountHealthcheckHandler configures the mux to serve the "chargewatch"
+// service "healthcheck" endpoint.
+func MountHealthcheckHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := handleChargewatchOrigin(h).(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("GET", "/healthcheck", f)
+}
+
+// NewHealthcheckHandler creates a HTTP handler which loads the HTTP request
+// and calls the "chargewatch" service "healthcheck" endpoint.
+func NewHealthcheckHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	decoder func(*http.Request) goahttp.Decoder,
+	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	errhandler func(context.Context, http.ResponseWriter, error),
+	formatter func(err error) goahttp.Statuser,
+) http.Handler {
+	var (
+		encodeResponse = EncodeHealthcheckResponse(encoder)
+		encodeError    = goahttp.ErrorEncoder(encoder, formatter)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "healthcheck")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "chargewatch")
+		var err error
+		res, err := endpoint(ctx, nil)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, res); err != nil {
+			errhandler(ctx, w, err)
+		}
+	})
 }
 
 // MountListDevicesHandler configures the mux to serve the "chargewatch"
@@ -369,6 +419,7 @@ func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
+	mux.Handle("OPTIONS", "/healthcheck", f)
 	mux.Handle("OPTIONS", "/user/{userID}/devices", f)
 	mux.Handle("OPTIONS", "/devices/{deviceID}/charge", f)
 	mux.Handle("OPTIONS", "/devices/{deviceID}/chargeHistory", f)

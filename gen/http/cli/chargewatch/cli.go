@@ -23,13 +23,13 @@ import (
 //    command (subcommand1|subcommand2|...)
 //
 func UsageCommands() string {
-	return `chargewatch (list-devices|create-device|update-charge|get-charge-history|update-device)
+	return `chargewatch (healthcheck|list-devices|create-device|update-charge|get-charge-history|update-device)
 `
 }
 
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
-	return os.Args[0] + ` chargewatch list-devices --user-id "Aperiam quaerat."` + "\n" +
+	return os.Args[0] + ` chargewatch healthcheck` + "\n" +
 		""
 }
 
@@ -44,6 +44,8 @@ func ParseEndpoint(
 ) (goa.Endpoint, interface{}, error) {
 	var (
 		chargewatchFlags = flag.NewFlagSet("chargewatch", flag.ContinueOnError)
+
+		chargewatchHealthcheckFlags = flag.NewFlagSet("healthcheck", flag.ExitOnError)
 
 		chargewatchListDevicesFlags      = flag.NewFlagSet("list-devices", flag.ExitOnError)
 		chargewatchListDevicesUserIDFlag = chargewatchListDevicesFlags.String("user-id", "REQUIRED", "userID")
@@ -65,6 +67,7 @@ func ParseEndpoint(
 		chargewatchUpdateDeviceDeviceIDFlag = chargewatchUpdateDeviceFlags.String("device-id", "REQUIRED", "deviceID")
 	)
 	chargewatchFlags.Usage = chargewatchUsage
+	chargewatchHealthcheckFlags.Usage = chargewatchHealthcheckUsage
 	chargewatchListDevicesFlags.Usage = chargewatchListDevicesUsage
 	chargewatchCreateDeviceFlags.Usage = chargewatchCreateDeviceUsage
 	chargewatchUpdateChargeFlags.Usage = chargewatchUpdateChargeUsage
@@ -105,6 +108,9 @@ func ParseEndpoint(
 		switch svcn {
 		case "chargewatch":
 			switch epn {
+			case "healthcheck":
+				epf = chargewatchHealthcheckFlags
+
 			case "list-devices":
 				epf = chargewatchListDevicesFlags
 
@@ -145,6 +151,9 @@ func ParseEndpoint(
 		case "chargewatch":
 			c := chargewatchc.NewClient(scheme, host, doer, enc, dec, restore)
 			switch epn {
+			case "healthcheck":
+				endpoint = c.Healthcheck()
+				data = nil
 			case "list-devices":
 				endpoint = c.ListDevices()
 				data, err = chargewatchc.BuildListDevicesPayload(*chargewatchListDevicesUserIDFlag)
@@ -178,6 +187,7 @@ Usage:
     %s [globalflags] chargewatch COMMAND [flags]
 
 COMMAND:
+    healthcheck: Healthcheck implements healthcheck.
     list-devices: ListDevices implements listDevices.
     create-device: CreateDevice implements createDevice.
     update-charge: UpdateCharge implements updateCharge.
@@ -188,6 +198,16 @@ Additional help:
     %s chargewatch COMMAND --help
 `, os.Args[0], os.Args[0])
 }
+func chargewatchHealthcheckUsage() {
+	fmt.Fprintf(os.Stderr, `%s [flags] chargewatch healthcheck
+
+Healthcheck implements healthcheck.
+
+Example:
+    `+os.Args[0]+` chargewatch healthcheck
+`, os.Args[0])
+}
+
 func chargewatchListDevicesUsage() {
 	fmt.Fprintf(os.Stderr, `%s [flags] chargewatch list-devices -user-id STRING
 
@@ -195,7 +215,7 @@ ListDevices implements listDevices.
     -user-id STRING: userID
 
 Example:
-    `+os.Args[0]+` chargewatch list-devices --user-id "Aperiam quaerat."
+    `+os.Args[0]+` chargewatch list-devices --user-id "Quaerat eum dolorum et rerum est suscipit."
 `, os.Args[0])
 }
 
@@ -208,9 +228,9 @@ CreateDevice implements createDevice.
 
 Example:
     `+os.Args[0]+` chargewatch create-device --body '{
-      "description": "Id omnis.",
-      "name": "Asperiores vel."
-   }' --user-id "Officiis quam eum quia sit consequatur ipsum."
+      "description": "Occaecati beatae optio sapiente vitae.",
+      "name": "Et nesciunt aperiam voluptas."
+   }' --user-id "Consequatur itaque."
 `, os.Args[0])
 }
 
@@ -223,9 +243,9 @@ UpdateCharge implements updateCharge.
 
 Example:
     `+os.Args[0]+` chargewatch update-charge --body '{
-      "chargeValue": 3361936368716358981,
-      "charging": true
-   }' --device-id "Vitae voluptas aperiam provident voluptatem vel laboriosam."
+      "chargeValue": 1204534250065173899,
+      "charging": false
+   }' --device-id "Impedit porro voluptas ut nostrum laborum."
 `, os.Args[0])
 }
 
@@ -236,7 +256,7 @@ GetChargeHistory implements getChargeHistory.
     -device-id STRING: deviceID
 
 Example:
-    `+os.Args[0]+` chargewatch get-charge-history --device-id "Delectus alias velit ut."
+    `+os.Args[0]+` chargewatch get-charge-history --device-id "Dolorum optio sit."
 `, os.Args[0])
 }
 
@@ -250,7 +270,7 @@ UpdateDevice implements updateDevice.
 
 Example:
     `+os.Args[0]+` chargewatch update-device --body '{
-      "chargeValue": 23
-   }' --user-id "Et velit ullam." --device-id "Officiis aut et ut eos."
+      "chargeValue": 54
+   }' --user-id "Aut et ut." --device-id "Voluptatem error qui."
 `, os.Args[0])
 }

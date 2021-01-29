@@ -11,6 +11,11 @@ import (
 	"fmt"
 )
 
+// HealthcheckChargewatchPath returns the URL path to the chargewatch service healthcheck HTTP endpoint.
+func HealthcheckChargewatchPath() string {
+	return "/healthcheck"
+}
+
 // ListDevicesChargewatchPath returns the URL path to the chargewatch service listDevices HTTP endpoint.
 func ListDevicesChargewatchPath(userID string) string {
 	return fmt.Sprintf("/user/%v/devices", userID)

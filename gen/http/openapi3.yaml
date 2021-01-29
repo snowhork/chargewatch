@@ -19,8 +19,8 @@ paths:
         schema:
           type: string
           description: deviceID
-          example: Modi repellat eos.
-        example: Et repudiandae animi animi.
+          example: Sit rerum saepe qui dolores harum occaecati.
+        example: Blanditiis recusandae quae sint.
       requestBody:
         required: true
         content:
@@ -30,17 +30,17 @@ paths:
               properties:
                 chargeValue:
                   type: integer
-                  example: 1266420597188454611
+                  example: 8911591691373405387
                   format: int64
                 charging:
                   type: boolean
                   example: true
               example:
-                chargeValue: 6893099211800512037
+                chargeValue: 6859189016814078243
                 charging: false
             example:
-              chargeValue: 3290636200137892453
-              charging: true
+              chargeValue: 4235433735853460048
+              charging: false
       responses:
         "200":
           description: OK response.
@@ -51,14 +51,14 @@ paths:
               example:
                 device:
                   charge:
-                    charging: true
-                    timestamp: 8070575591676915436
-                    value: 8344681023334431344
-                  description: Vel veritatis.
-                  id: Ut reprehenderit doloribus iusto optio ut corporis.
-                  name: Sunt quae vitae sint sit ea.
-                  state: Totam et suscipit.
-                  userID: Accusamus sit excepturi non consequatur quia quas.
+                    charging: false
+                    timestamp: 8344681023334431344
+                    value: 1969285450001603711
+                  description: Sit ea earum vel.
+                  id: Iusto optio.
+                  name: Quia quas illo sunt quae vitae.
+                  state: Quaerat totam.
+                  userID: Corporis labore accusamus sit excepturi non.
         "400":
           description: Bad Request response.
           content:
@@ -93,8 +93,8 @@ paths:
         schema:
           type: string
           description: deviceID
-          example: Nostrum earum magnam dolores velit blanditiis nobis.
-        example: Ut odit sit rerum.
+          example: Soluta corrupti eos omnis sint.
+        example: Nam illo velit reiciendis aut qui quidem.
       responses:
         "200":
           description: OK response.
@@ -104,23 +104,38 @@ paths:
                 $ref: '#/components/schemas/GetChargeHistoryResponseBody'
               example:
                 chargeHistory:
-                  deviceID: Dolor dignissimos.
+                  deviceID: Ipsa a delectus quia.
                   logs:
                   - charge:
                       charging: true
-                      timestamp: 7448338722332200067
-                      value: 3165210663228818035
-                    deviceID: Optio sit et ipsa a delectus.
+                      timestamp: 7530045597555114181
+                      value: 7362310245545543380
+                    deviceID: Quia provident rerum.
                   - charge:
                       charging: true
-                      timestamp: 7448338722332200067
-                      value: 3165210663228818035
-                    deviceID: Optio sit et ipsa a delectus.
+                      timestamp: 7530045597555114181
+                      value: 7362310245545543380
+                    deviceID: Quia provident rerum.
                   - charge:
                       charging: true
-                      timestamp: 7448338722332200067
-                      value: 3165210663228818035
-                    deviceID: Optio sit et ipsa a delectus.
+                      timestamp: 7530045597555114181
+                      value: 7362310245545543380
+                    deviceID: Quia provident rerum.
+  /healthcheck:
+    get:
+      tags:
+      - chargewatch
+      summary: healthcheck chargewatch
+      operationId: chargewatch#healthcheck
+      responses:
+        "200":
+          description: OK response.
+          content:
+            application/json:
+              schema:
+                type: string
+                example: Delectus iure blanditiis necessitatibus earum.
+              example: Eius tempore minus et doloribus sed.
   /user/{userID}/devices:
     get:
       tags:
@@ -135,8 +150,8 @@ paths:
         schema:
           type: string
           description: userID
-          example: Voluptate quia.
-        example: Minima atque aut aut rerum autem cum.
+          example: Ducimus molestiae.
+        example: Consequatur praesentium.
       responses:
         "200":
           description: OK response.
@@ -147,41 +162,23 @@ paths:
               example:
                 devices:
                 - charge:
-                    charging: true
-                    timestamp: 8070575591676915436
-                    value: 8344681023334431344
-                  description: Vel veritatis.
-                  id: Ut reprehenderit doloribus iusto optio ut corporis.
-                  name: Sunt quae vitae sint sit ea.
-                  state: Totam et suscipit.
-                  userID: Accusamus sit excepturi non consequatur quia quas.
+                    charging: false
+                    timestamp: 8344681023334431344
+                    value: 1969285450001603711
+                  description: Sit ea earum vel.
+                  id: Iusto optio.
+                  name: Quia quas illo sunt quae vitae.
+                  state: Quaerat totam.
+                  userID: Corporis labore accusamus sit excepturi non.
                 - charge:
-                    charging: true
-                    timestamp: 8070575591676915436
-                    value: 8344681023334431344
-                  description: Vel veritatis.
-                  id: Ut reprehenderit doloribus iusto optio ut corporis.
-                  name: Sunt quae vitae sint sit ea.
-                  state: Totam et suscipit.
-                  userID: Accusamus sit excepturi non consequatur quia quas.
-                - charge:
-                    charging: true
-                    timestamp: 8070575591676915436
-                    value: 8344681023334431344
-                  description: Vel veritatis.
-                  id: Ut reprehenderit doloribus iusto optio ut corporis.
-                  name: Sunt quae vitae sint sit ea.
-                  state: Totam et suscipit.
-                  userID: Accusamus sit excepturi non consequatur quia quas.
-                - charge:
-                    charging: true
-                    timestamp: 8070575591676915436
-                    value: 8344681023334431344
-                  description: Vel veritatis.
-                  id: Ut reprehenderit doloribus iusto optio ut corporis.
-                  name: Sunt quae vitae sint sit ea.
-                  state: Totam et suscipit.
-                  userID: Accusamus sit excepturi non consequatur quia quas.
+                    charging: false
+                    timestamp: 8344681023334431344
+                    value: 1969285450001603711
+                  description: Sit ea earum vel.
+                  id: Iusto optio.
+                  name: Quia quas illo sunt quae vitae.
+                  state: Quaerat totam.
+                  userID: Corporis labore accusamus sit excepturi non.
     post:
       tags:
       - chargewatch
@@ -195,8 +192,8 @@ paths:
         schema:
           type: string
           description: userID
-          example: Molestiae iusto consequatur praesentium quia.
-        example: Voluptatem facilis.
+          example: Et repudiandae animi animi.
+        example: Nostrum earum magnam dolores velit blanditiis nobis.
       requestBody:
         required: true
         content:
@@ -208,17 +205,17 @@ paths:
                   type: string
                   description: description
                   default: ""
-                  example: Iusto nesciunt et nobis quasi tenetur.
+                  example: Quisquam possimus qui necessitatibus eum ratione similique.
                 name:
                   type: string
                   description: device name
-                  example: Eligendi ipsum veniam voluptas ullam voluptatem odit.
+                  example: Enim dignissimos harum sit est.
               example:
-                description: Enim dignissimos harum sit est.
-                name: Recusandae id reiciendis vitae.
+                description: Quia saepe.
+                name: Quia id occaecati ratione temporibus deleniti.
             example:
-              description: Et doloribus sed iusto.
-              name: Odio eius tempore.
+              description: Qui molestiae dolorem modi repellat eos.
+              name: Sit voluptatem.
       responses:
         "200":
           description: OK response.
@@ -229,14 +226,14 @@ paths:
               example:
                 device:
                   charge:
-                    charging: true
-                    timestamp: 8070575591676915436
-                    value: 8344681023334431344
-                  description: Vel veritatis.
-                  id: Ut reprehenderit doloribus iusto optio ut corporis.
-                  name: Sunt quae vitae sint sit ea.
-                  state: Totam et suscipit.
-                  userID: Accusamus sit excepturi non consequatur quia quas.
+                    charging: false
+                    timestamp: 8344681023334431344
+                    value: 1969285450001603711
+                  description: Sit ea earum vel.
+                  id: Iusto optio.
+                  name: Quia quas illo sunt quae vitae.
+                  state: Quaerat totam.
+                  userID: Corporis labore accusamus sit excepturi non.
         "500":
           description: Internal Server Error response.
           content:
@@ -261,8 +258,8 @@ paths:
         schema:
           type: string
           description: userID
-          example: Dolores harum occaecati.
-        example: Blanditiis recusandae quae sint.
+          example: Deleniti nihil.
+        example: Labore voluptate nisi.
       - name: deviceID
         in: path
         description: deviceID
@@ -270,8 +267,8 @@ paths:
         schema:
           type: string
           description: deviceID
-          example: Soluta corrupti eos omnis sint.
-        example: Nam illo velit reiciendis aut qui quidem.
+          example: Nobis laudantium voluptas placeat.
+        example: Labore nam nihil aspernatur omnis cumque.
       requestBody:
         required: true
         content:
@@ -282,13 +279,13 @@ paths:
                 chargeValue:
                   type: integer
                   description: value [0,100]
-                  example: 38
+                  example: 31
                   minimum: 0
                   maximum: 100
               example:
-                chargeValue: 30
+                chargeValue: 69
             example:
-              chargeValue: 52
+              chargeValue: 36
       responses:
         "200":
           description: OK response.
@@ -299,14 +296,14 @@ paths:
               example:
                 device:
                   charge:
-                    charging: true
-                    timestamp: 8070575591676915436
-                    value: 8344681023334431344
-                  description: Vel veritatis.
-                  id: Ut reprehenderit doloribus iusto optio ut corporis.
-                  name: Sunt quae vitae sint sit ea.
-                  state: Totam et suscipit.
-                  userID: Accusamus sit excepturi non consequatur quia quas.
+                    charging: false
+                    timestamp: 8344681023334431344
+                    value: 1969285450001603711
+                  description: Sit ea earum vel.
+                  id: Iusto optio.
+                  name: Quia quas illo sunt quae vitae.
+                  state: Quaerat totam.
+                  userID: Corporis labore accusamus sit excepturi non.
 components:
   schemas:
     Charge:
@@ -314,19 +311,19 @@ components:
       properties:
         charging:
           type: boolean
-          example: true
+          example: false
         timestamp:
           type: integer
-          example: 1938870607373076285
+          example: 3100352580548394472
           format: int64
         value:
           type: integer
-          example: 1733697141782441873
+          example: 3425988938437320713
           format: int64
       example:
         charging: true
-        timestamp: 6956020280378917234
-        value: 1068213625239419291
+        timestamp: 4213260119376303899
+        value: 8465384184511783243
       required:
       - value
       - charging
@@ -336,7 +333,7 @@ components:
       properties:
         deviceID:
           type: string
-          example: Expedita quia.
+          example: Ut labore ipsum.
         logs:
           type: array
           items:
@@ -344,47 +341,37 @@ components:
           example:
           - charge:
               charging: true
-              timestamp: 7448338722332200067
-              value: 3165210663228818035
-            deviceID: Optio sit et ipsa a delectus.
+              timestamp: 7530045597555114181
+              value: 7362310245545543380
+            deviceID: Quia provident rerum.
           - charge:
               charging: true
-              timestamp: 7448338722332200067
-              value: 3165210663228818035
-            deviceID: Optio sit et ipsa a delectus.
-          - charge:
-              charging: true
-              timestamp: 7448338722332200067
-              value: 3165210663228818035
-            deviceID: Optio sit et ipsa a delectus.
-          - charge:
-              charging: true
-              timestamp: 7448338722332200067
-              value: 3165210663228818035
-            deviceID: Optio sit et ipsa a delectus.
+              timestamp: 7530045597555114181
+              value: 7362310245545543380
+            deviceID: Quia provident rerum.
       example:
-        deviceID: Delectus nam quia soluta ut.
+        deviceID: Aut rerum.
         logs:
         - charge:
             charging: true
-            timestamp: 7448338722332200067
-            value: 3165210663228818035
-          deviceID: Optio sit et ipsa a delectus.
+            timestamp: 7530045597555114181
+            value: 7362310245545543380
+          deviceID: Quia provident rerum.
         - charge:
             charging: true
-            timestamp: 7448338722332200067
-            value: 3165210663228818035
-          deviceID: Optio sit et ipsa a delectus.
+            timestamp: 7530045597555114181
+            value: 7362310245545543380
+          deviceID: Quia provident rerum.
         - charge:
             charging: true
-            timestamp: 7448338722332200067
-            value: 3165210663228818035
-          deviceID: Optio sit et ipsa a delectus.
+            timestamp: 7530045597555114181
+            value: 7362310245545543380
+          deviceID: Quia provident rerum.
         - charge:
             charging: true
-            timestamp: 7448338722332200067
-            value: 3165210663228818035
-          deviceID: Optio sit et ipsa a delectus.
+            timestamp: 7530045597555114181
+            value: 7362310245545543380
+          deviceID: Quia provident rerum.
       required:
       - deviceID
       - logs
@@ -395,13 +382,13 @@ components:
           $ref: '#/components/schemas/Charge'
         deviceID:
           type: string
-          example: Occaecati ratione.
+          example: Saepe voluptate.
       example:
         charge:
           charging: true
-          timestamp: 7448338722332200067
-          value: 3165210663228818035
-        deviceID: Deleniti corporis quia saepe alias sequi.
+          timestamp: 7530045597555114181
+          value: 7362310245545543380
+        deviceID: Itaque minima.
       required:
       - deviceID
       - charge
@@ -413,14 +400,14 @@ components:
       example:
         device:
           charge:
-            charging: true
-            timestamp: 8070575591676915436
-            value: 8344681023334431344
-          description: Vel veritatis.
-          id: Ut reprehenderit doloribus iusto optio ut corporis.
-          name: Sunt quae vitae sint sit ea.
-          state: Totam et suscipit.
-          userID: Accusamus sit excepturi non consequatur quia quas.
+            charging: false
+            timestamp: 8344681023334431344
+            value: 1969285450001603711
+          description: Sit ea earum vel.
+          id: Iusto optio.
+          name: Quia quas illo sunt quae vitae.
+          state: Quaerat totam.
+          userID: Corporis labore accusamus sit excepturi non.
       required:
       - device
     Device:
@@ -430,29 +417,29 @@ components:
           $ref: '#/components/schemas/Charge'
         description:
           type: string
-          example: Earum rerum quasi qui cum quo cumque.
+          example: Sequi totam voluptates.
         id:
           type: string
-          example: Provident consequatur beatae in eveniet et dignissimos.
+          example: Quasi qui cum quo cumque illum.
         name:
           type: string
-          example: Laboriosam doloremque aliquam delectus iure blanditiis.
+          example: Placeat non eum pariatur explicabo voluptatibus accusamus.
         state:
           type: string
-          example: Adipisci quas cum qui.
+          example: Aut consequatur dolore.
         userID:
           type: string
-          example: Qui est et alias assumenda et voluptatem.
+          example: Quas cum.
       example:
         charge:
           charging: true
-          timestamp: 7448338722332200067
-          value: 3165210663228818035
-        description: Iure voluptatum quia nesciunt.
-        id: Asperiores sequi.
-        name: Eveniet commodi dignissimos inventore est repudiandae.
-        state: Ut consequatur rerum explicabo qui eaque.
-        userID: Voluptates modi aut consequatur.
+          timestamp: 7530045597555114181
+          value: 7362310245545543380
+        description: Voluptatem odit qui iusto nesciunt et nobis.
+        id: Iure voluptatum quia nesciunt.
+        name: Aperiam qui eligendi ipsum veniam voluptas.
+        state: Tenetur omnis recusandae id.
+        userID: Ut consequatur rerum explicabo qui eaque.
       required:
       - id
       - userID
@@ -466,7 +453,7 @@ components:
         fault:
           type: boolean
           description: Is the error a server-side fault?
-          example: true
+          example: false
         id:
           type: string
           description: ID is a unique identifier for this particular occurrence of
@@ -507,23 +494,23 @@ components:
           $ref: '#/components/schemas/ChargeHistory'
       example:
         chargeHistory:
-          deviceID: Dolor dignissimos.
+          deviceID: Ipsa a delectus quia.
           logs:
           - charge:
               charging: true
-              timestamp: 7448338722332200067
-              value: 3165210663228818035
-            deviceID: Optio sit et ipsa a delectus.
+              timestamp: 7530045597555114181
+              value: 7362310245545543380
+            deviceID: Quia provident rerum.
           - charge:
               charging: true
-              timestamp: 7448338722332200067
-              value: 3165210663228818035
-            deviceID: Optio sit et ipsa a delectus.
+              timestamp: 7530045597555114181
+              value: 7362310245545543380
+            deviceID: Quia provident rerum.
           - charge:
               charging: true
-              timestamp: 7448338722332200067
-              value: 3165210663228818035
-            deviceID: Optio sit et ipsa a delectus.
+              timestamp: 7530045597555114181
+              value: 7362310245545543380
+            deviceID: Quia provident rerum.
       required:
       - chargeHistory
     ListDevicesResponseBody:
@@ -535,51 +522,51 @@ components:
             $ref: '#/components/schemas/Device'
           example:
           - charge:
-              charging: true
-              timestamp: 8070575591676915436
-              value: 8344681023334431344
-            description: Vel veritatis.
-            id: Ut reprehenderit doloribus iusto optio ut corporis.
-            name: Sunt quae vitae sint sit ea.
-            state: Totam et suscipit.
-            userID: Accusamus sit excepturi non consequatur quia quas.
+              charging: false
+              timestamp: 8344681023334431344
+              value: 1969285450001603711
+            description: Sit ea earum vel.
+            id: Iusto optio.
+            name: Quia quas illo sunt quae vitae.
+            state: Quaerat totam.
+            userID: Corporis labore accusamus sit excepturi non.
           - charge:
-              charging: true
-              timestamp: 8070575591676915436
-              value: 8344681023334431344
-            description: Vel veritatis.
-            id: Ut reprehenderit doloribus iusto optio ut corporis.
-            name: Sunt quae vitae sint sit ea.
-            state: Totam et suscipit.
-            userID: Accusamus sit excepturi non consequatur quia quas.
+              charging: false
+              timestamp: 8344681023334431344
+              value: 1969285450001603711
+            description: Sit ea earum vel.
+            id: Iusto optio.
+            name: Quia quas illo sunt quae vitae.
+            state: Quaerat totam.
+            userID: Corporis labore accusamus sit excepturi non.
           - charge:
-              charging: true
-              timestamp: 8070575591676915436
-              value: 8344681023334431344
-            description: Vel veritatis.
-            id: Ut reprehenderit doloribus iusto optio ut corporis.
-            name: Sunt quae vitae sint sit ea.
-            state: Totam et suscipit.
-            userID: Accusamus sit excepturi non consequatur quia quas.
+              charging: false
+              timestamp: 8344681023334431344
+              value: 1969285450001603711
+            description: Sit ea earum vel.
+            id: Iusto optio.
+            name: Quia quas illo sunt quae vitae.
+            state: Quaerat totam.
+            userID: Corporis labore accusamus sit excepturi non.
       example:
         devices:
         - charge:
-            charging: true
-            timestamp: 8070575591676915436
-            value: 8344681023334431344
-          description: Vel veritatis.
-          id: Ut reprehenderit doloribus iusto optio ut corporis.
-          name: Sunt quae vitae sint sit ea.
-          state: Totam et suscipit.
-          userID: Accusamus sit excepturi non consequatur quia quas.
+            charging: false
+            timestamp: 8344681023334431344
+            value: 1969285450001603711
+          description: Sit ea earum vel.
+          id: Iusto optio.
+          name: Quia quas illo sunt quae vitae.
+          state: Quaerat totam.
+          userID: Corporis labore accusamus sit excepturi non.
         - charge:
-            charging: true
-            timestamp: 8070575591676915436
-            value: 8344681023334431344
-          description: Vel veritatis.
-          id: Ut reprehenderit doloribus iusto optio ut corporis.
-          name: Sunt quae vitae sint sit ea.
-          state: Totam et suscipit.
-          userID: Accusamus sit excepturi non consequatur quia quas.
+            charging: false
+            timestamp: 8344681023334431344
+            value: 1969285450001603711
+          description: Sit ea earum vel.
+          id: Iusto optio.
+          name: Quia quas illo sunt quae vitae.
+          state: Quaerat totam.
+          userID: Corporis labore accusamus sit excepturi non.
       required:
       - devices

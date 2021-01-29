@@ -15,6 +15,7 @@ import (
 
 // Client is the "chargewatch" service client.
 type Client struct {
+	HealthcheckEndpoint      goa.Endpoint
 	ListDevicesEndpoint      goa.Endpoint
 	CreateDeviceEndpoint     goa.Endpoint
 	UpdateChargeEndpoint     goa.Endpoint
@@ -23,14 +24,25 @@ type Client struct {
 }
 
 // NewClient initializes a "chargewatch" service client given the endpoints.
-func NewClient(listDevices, createDevice, updateCharge, getChargeHistory, updateDevice goa.Endpoint) *Client {
+func NewClient(healthcheck, listDevices, createDevice, updateCharge, getChargeHistory, updateDevice goa.Endpoint) *Client {
 	return &Client{
+		HealthcheckEndpoint:      healthcheck,
 		ListDevicesEndpoint:      listDevices,
 		CreateDeviceEndpoint:     createDevice,
 		UpdateChargeEndpoint:     updateCharge,
 		GetChargeHistoryEndpoint: getChargeHistory,
 		UpdateDeviceEndpoint:     updateDevice,
 	}
+}
+
+// Healthcheck calls the "healthcheck" endpoint of the "chargewatch" service.
+func (c *Client) Healthcheck(ctx context.Context) (res string, err error) {
+	var ires interface{}
+	ires, err = c.HealthcheckEndpoint(ctx, nil)
+	if err != nil {
+		return
+	}
+	return ires.(string), nil
 }
 
 // ListDevices calls the "listDevices" endpoint of the "chargewatch" service.

@@ -15,6 +15,8 @@ import (
 
 // Service is the chargewatch service interface.
 type Service interface {
+	// Healthcheck implements healthcheck.
+	Healthcheck(context.Context) (res string, err error)
 	// ListDevices implements listDevices.
 	ListDevices(context.Context, *ListDevicesPayload) (res *ListDevicesResult, err error)
 	// CreateDevice implements createDevice.
@@ -35,7 +37,7 @@ const ServiceName = "chargewatch"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [5]string{"listDevices", "createDevice", "updateCharge", "getChargeHistory", "updateDevice"}
+var MethodNames = [6]string{"healthcheck", "listDevices", "createDevice", "updateCharge", "getChargeHistory", "updateDevice"}
 
 // ListDevicesPayload is the payload type of the chargewatch service
 // listDevices method.
