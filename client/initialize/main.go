@@ -34,9 +34,13 @@ func registerDevice(host, user, name, description string) {
 		log.Fatal(err)
 	}
 
+	path := fmt.Sprintf("%s/user/%s/devices", host, user)
+	println(path)
+	println(string(raw))
+
 	req, err := http.NewRequest(
 		"POST",
-		fmt.Sprintf("%s/user/%s/devices", host, user),
+		path,
 		bytes.NewBuffer(raw),
 	)
 

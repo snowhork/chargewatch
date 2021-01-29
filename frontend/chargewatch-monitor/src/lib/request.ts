@@ -9,7 +9,8 @@ interface GetChargeHistoryResponse {
     chargeHistory: ChargeHistory
 }
 
-const rest = new RestClient("chargewatch-monitor", "http://localhost:8088")
+// const rest = new RestClient("chargewatch-monitor", "http://localhost:8088")
+const rest = new RestClient("chargewatch-monitor", "https://chargewatch.snowhork.com")
 
 export async function GetDevices(userID: string): Promise<GetDevicesResponse> {
     const res = await rest.get<GetDevicesResponse>(`/user/${userID}/devices`)
