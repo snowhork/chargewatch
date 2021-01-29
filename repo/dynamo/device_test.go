@@ -14,7 +14,7 @@ import (
 func TestNewDeviceDynamoRepository(t *testing.T) {
 	rand.Seed(time.Now().UnixNano())
 
-	repo := NewDeviceDynamoRepository()
+	repo := NewDeviceDynamoRepository(NewLocalDynamoClient())
 
 	userID := vals.NewUserID(fmt.Sprintf("%d", rand.Intn(1000000)))
 	meta := vals.GenerateDeviceMeta("iphone", "personal device")

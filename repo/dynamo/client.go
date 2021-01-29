@@ -9,12 +9,12 @@ import (
 	"github.com/guregu/dynamo"
 )
 
-type client struct {
+type Client struct {
 	DB    *dynamo.DB
 	Table dynamo.Table
 }
 
-func NewLocalDynamoClient() *client {
+func NewLocalDynamoClient() *Client {
 	s, _ := session.NewSession()
 
 	_ = os.Setenv("AWS_ACCESS_KEY_ID", "dummy")
@@ -28,7 +28,18 @@ func NewLocalDynamoClient() *client {
 	})
 	table := db.Table("ChargeWatchTable")
 
-	return &client{Table: table, DB: db}
+	return &Client{Table: table, DB: db}
+}
+
+func NewDynamoClient(tableName string) *Client {
+	s, _ := session.NewSession()
+
+	db := dynamo.New(s, &aws.Config{
+		Region:      aws.String("ap-northeast-1"),
+	})
+	table := db.Table(tableName)
+
+	return &Client{Table: table, DB: db}
 }
 
 var hashKeyName = "HashKey"

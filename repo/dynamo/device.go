@@ -11,7 +11,7 @@ import (
 )
 
 type DeviceDynamoRepository struct {
-	client *client
+	client *Client
 }
 
 func (r *DeviceDynamoRepository) Get(id vals.DeviceID) (*entity.Device, error) {
@@ -66,9 +66,9 @@ func (r *DeviceDynamoRepository) Update(d *entity.Device) error {
 	return nil
 }
 
-func NewDeviceDynamoRepository() repo.DeviceRepository {
+func NewDeviceDynamoRepository(client *Client) repo.DeviceRepository {
 	return &DeviceDynamoRepository{
-		client: NewLocalDynamoClient(),
+		client: client,
 	}
 }
 

@@ -49,5 +49,4 @@ func TestChargewatchsrvc_CreateDevice(t *testing.T) {
 			assert.Equal(t, device, list.List[0])
 		})
 	}
-
 }

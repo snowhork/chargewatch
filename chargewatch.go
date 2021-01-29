@@ -9,6 +9,7 @@ import (
 	"log"
 
 	"golang.org/x/xerrors"
+	"os"
 )
 
 type chargewatchsrvc struct {
@@ -120,7 +121,15 @@ func NewChargewatch(logger *log.Logger) api.Service {
 	return &chargewatchsrvc{
 		logger: logger,
 		repo: &RepositoryAgg{
-			Device: dynamo.NewDeviceDynamoRepository(),
+			Device: dynamo.NewDeviceDynamoRepository(newDynamoDBClient()),
 		},
+	}
+}
+
+func newDynamoDBClient() *dynamo.Client {
+	if tableName := os.Getenv("DYNAMODB_TABLE_NAME"); tableName == "" {
+		return dynamo.NewLocalDynamoClient()
+	} else {
+		return dynamo.NewDynamoClient(tableName)
 	}
 }
