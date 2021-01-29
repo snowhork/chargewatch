@@ -8,7 +8,7 @@ import (
 var _ = API("charge watch", func() {
 	Title("Charge Watcher")
 	Server("chargewatch", func() {
-		Host("localhost", func() { URI("http://localhost:8088") })
+		Host("localhost", func() { URI("http://0.0.0.0:8088") })
 	})
 
 	cors.Origin("/.*localhost.*/", func() {
