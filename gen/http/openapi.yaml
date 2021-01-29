@@ -2,7 +2,7 @@ swagger: "2.0"
 info:
   title: Charge Watcher
   version: ""
-host: localhost:8088
+host: 0.0.0.0:8088
 consumes:
 - application/json
 - application/xml
