@@ -19,7 +19,8 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -o main ./cmd/chargewatch
 #####
 #####
 
-FROM scratch
+FROM alpine:latest
 COPY --from=builder /app/main /bin/main
+RUN apk --no-cache add ca-certificates
 EXPOSE 8088
 CMD ["/bin/main"]
