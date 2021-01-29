@@ -3,6 +3,8 @@ package vals
 import (
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
+	"math/rand"
+	"time"
 )
 
 //
@@ -28,6 +30,7 @@ type DeviceDescription string
 type DeviceState string
 
 func GenerateDeviceID() DeviceID {
+	rand.Seed(time.Now().UnixNano())
 	return DeviceID(uuid.New().String())
 }
 
